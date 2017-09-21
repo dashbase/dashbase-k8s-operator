@@ -1,4 +1,5 @@
 import boto3
+
 try:
     from StringIO import StringIO
 except ImportError:
@@ -54,4 +55,4 @@ class S3Service:
         else:
             s = StringIO()
             bucket.download_fileobj(key, s)
-            return s.read()
+            return s.getvalue()

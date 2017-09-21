@@ -1,11 +1,11 @@
-import click
 import os
+
+import click
 
 plugin_folder = os.path.join(os.path.dirname(__file__), 'cmd')
 
 
 class ComplexCLI(click.MultiCommand):
-
     def list_commands(self, ctx):
         rv = []
         for filename in os.listdir(plugin_folder):
