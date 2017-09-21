@@ -1,0 +1,12 @@
+*.DS_Store
+.env/
+env/
+*.pyc
+
+inventory.ini
+.idea/
+dist
+
+dashbase.egg-info
+htmlcov
+.coverage
