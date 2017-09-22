@@ -9,7 +9,7 @@ from dashops.services import KopsService
 @root.command('edit')
 @click.argument('cluster-name', type=ClusterNameParamType(), nargs=1, expose_value=True)
 @click.option('--s3-bucket', type=click.STRING,
-              help='Specify the bucket to store cluster state.\nDefaults to cluster-name.', required=True)
+              help='Specify the bucket to store cluster state.\nDefaults to cluster-name.')
 @click.option('--yes', is_flag=True, help='If to apply immediately.')
 def edit(cluster_name, s3_bucket, yes):
     """

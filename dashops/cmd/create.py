@@ -66,7 +66,6 @@ def _create_cluster(cluster_name, s3_bucket, machine_type, num_nodes, zone, regi
     if vpc_id is not None:
         export_env('VPC_ID', vpc_id)
         export_env('NETWORK_CIDR', network_cidr)
-    click.echo('Successfully set env.')
 
     # create cluster config
     execute_command(KopsService.get_create_command(cloud='aws', zones=zone, name=cluster_name, num_nodes=num_nodes,

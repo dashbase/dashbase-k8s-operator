@@ -51,20 +51,16 @@ Usage: dashops create [OPTIONS] CLUSTER_NAME
 Options:
   --s3-bucket TEXT           Specify the bucket to store cluster state.
                              Defaults to cluster-name.
-  --machine-type TEXT        Specify the machine type to use in the cluster.
-                             [default: r4.xlarge]
-  --num-nodes INTEGER RANGE  Specify number of nodes to start in the cluster.
-                             [default: 3]
+  --machine-type TEXT        Specify the machine type to use in the cluster.  [default: r4.xlarge]
+  --num-nodes INTEGER RANGE  Specify number of nodes to start in the cluster.  [default: 3]
   --zone TEXT                Specify the zone to use.  [default: us-west-1b]
   --region TEXT              Specify the region to use.  [default: us-west-1]
   --vpc-id TEXT              Specify the vpc to use.
   --network-cidr TEXT        Specify the network cidr of vpc.
-                             Should match the
-                             cidr of specified vpc.
+                             Should match the cidr of specified vpc.
   --subnet-id TEXT           Specify the subnet-id to use.
   --subnet-cidr TEXT         Specify the subnet cidr to create.
-                             This will be
-                             ignored if "subnet-id" is specified.
+                             This will be ignored if "subnet-id" is specified.
   --edit                     If to edit the information before apply on aws.
   --help                     Show this message and exit.
 ```
@@ -86,8 +82,7 @@ Usage: dashops edit [OPTIONS] CLUSTER_NAME
 
 Options:
   --s3-bucket TEXT  Specify the bucket to store cluster state.
-                    Defaults to
-                    cluster-name.  [required]
+                    Defaults to cluster-name.
   --yes             If to apply immediately.
   --help            Show this message and exit.
 ```
@@ -109,8 +104,7 @@ Usage: dashops delete [OPTIONS] CLUSTER_NAME
 
 Options:
   --s3-bucket TEXT  Specify the bucket to store cluster state.
-                    Defaults to
-                    cluster-name.  [required]
+                    Defaults to cluster-name.
   --yes             If to apply immediately.
   --help            Show this message and exit.
 ```
