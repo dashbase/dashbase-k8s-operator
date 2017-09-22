@@ -62,6 +62,9 @@ def _modify_subnet(key, s3_bucket, region, subnet_cidr, subnet_id):
         subnet_cidr = SubnetService.get_subnet_cidr(subnet_id, region)
     if subnet_cidr:
         formatter.data['spec']['subnets'][0]['cidr'] = subnet_cidr
+    t = formatter.data['metadata']['creationTimestamp']
+    if t is not None:
+        formatter.data['metadata']['creationTimestamp'] = t.strftime('%Y-%m-%dT%H:%M:%SZ')
     S3Service.upload(s3_bucket, key, formatter.get_formatted_output(FormatType.YAML), region_name=region)
 
 
@@ -80,11 +83,11 @@ def _create_cluster(cluster_name, s3_bucket, machine_type, num_nodes, zone, regi
     if subnet_id or subnet_cidr:
         click.secho('Modifying subnet...')
         # modify config
-        key = '/{}/config'.format(cluster_name)
+        key = '{}/config'.format(cluster_name)
         _modify_subnet(key, s3_bucket, region, subnet_cidr, subnet_id)
 
         # modify cluster.spec
-        key = '/{}/cluster.spec'.format(cluster_name)
+        key = '{}/cluster.spec'.format(cluster_name)
         _modify_subnet(key, s3_bucket, region, subnet_cidr, subnet_id)
         click.secho('Modify subnet done.')
 

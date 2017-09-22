@@ -3,9 +3,9 @@ import boto3
 from dashops.common.errors import CliRuntimeError
 
 try:
-    from StringIO import StringIO
+    from StringIO import StringIO as BytesIO
 except ImportError:
-    from io import StringIO
+    from io import BytesIO
 
 
 class S3Service:
@@ -61,9 +61,9 @@ class S3Service:
             with open(filename) as f:
                 return f.read()
         else:
-            s = StringIO()
+            s = BytesIO()
             bucket.download_fileobj(key, s)
-            return s.getvalue()
+            return s.getvalue().decode()
 
     @classmethod
     def upload(cls, bucket_name, key, content=None, region_name=None, filename=None):
@@ -89,5 +89,5 @@ class S3Service:
         if filename:
             obj.upload_file(filename)
         else:
-            s = StringIO(content)
+            s = BytesIO(content.encode('utf-8'))
             obj.upload_fileobj(s)

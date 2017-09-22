@@ -22,7 +22,7 @@ class Bucket:
             f.write(key)
 
     def download_fileobj(self, key, fileobj):
-        fileobj.write(key)
+        fileobj.write(key.encode('utf-8'))
 
     class Versioning:
         called = False
