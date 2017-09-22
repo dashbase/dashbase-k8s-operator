@@ -1,0 +1,50 @@
+version: 2
+jobs:
+  build:
+
+    docker:
+      - image: daniel48/dashops-ci:0.0.1
+
+    resource_class: large
+
+    working_directory: ~/dashbase-operator
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          key: dashops-pip-{{ checksum "requirements.txt" }}
+
+      - run:
+          name: Set up environment
+          command: |
+            if [ ! -d "venv" ]; then
+              virtualenv venv
+            fi
+            . venv/bin/activate
+            pip install -r requirements.txt
+
+      - save_cache:
+          key: dashops-pip-{{ checksum "requirements.txt" }}
+          paths:
+            - "venv"
+
+      - run:
+          name: Run tests and collect coverage info
+          command: |
+            . venv/bin/activate
+            pep8 . --ignore=E501,E711 --exclude=venv
+            flake8 . --ignore=E501,E711,F401,F403 --exclude=venv
+            coverage run --omit="venv/*" --source=dashops -m unittest discover -s tests/unittests -t .
+            coverage html --skip-covered --omit="venv/*"
+            coverage report -m --skip-covered --omit="venv/*"
+
+      - store_artifacts:
+          path: htmlcov
+
+      - deploy:
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              ./setup_pypirc.sh
+              python setup.py sdist upload
+            fi
