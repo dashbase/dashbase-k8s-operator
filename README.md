@@ -41,6 +41,14 @@ dashops create testk8s.example.com
 
 **cluster name should obey the rules in kops document(a domain name)!**
 
+More complicated usage:
+
+```
+dashops create --s3-bucket testk8s-state-store --num-nodes 5 --zone ap-northeast-1a --region ap-northeast-1 --vpc-id vpc-12345678 --network-cidr 172.31.0.0/16 --subnet-cidr 172.31.0.0/20 --subnet-id subnet-1234abcd testk8s.example.com
+```
+
+
+
 For more detailed usage:
 
 ```
