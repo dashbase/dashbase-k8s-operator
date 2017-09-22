@@ -22,7 +22,8 @@ from dashops.services import S3Service, KopsService
 @click.option('--network-cidr', type=click.STRING,
               help='Specify the network cidr of vpc.\nShould match the cidr of specified vpc.')
 @click.option('--subnet-id', type=click.STRING, help='Specify the subnet-id to use.')
-@click.option('--subnet-cidr', type=click.STRING, help='Specify the subnet cidr to create.')
+@click.option('--subnet-cidr', type=click.STRING,
+              help='Specify the subnet cidr to create.\nThis will be ignored if "subnet-id" is specified.')
 @click.option('--edit', is_flag=True, help='If to edit the information before apply on aws.')
 @click.pass_context
 def create(ctx, cluster_name, s3_bucket, machine_type, num_nodes, zone, region, vpc_id, network_cidr, subnet_id,
@@ -33,7 +34,7 @@ def create(ctx, cluster_name, s3_bucket, machine_type, num_nodes, zone, region, 
     # validate input
     if not s3_bucket:
         s3_bucket = cluster_name
-        ctx.param['s3_bucket'] = s3_bucket
+        ctx.params['s3_bucket'] = s3_bucket
     if region not in zone:
         raise UsageError('"zone" not in "region"!')
     if vpc_id and not network_cidr:
@@ -49,34 +50,42 @@ def _validate_s3(s3_bucket, region):
         S3Service.create_bucket(s3_bucket, region_name=region)
 
 
+def _modify_subnet(key, s3_bucket, region, subnet_cidr, subnet_id):
+    formatter = Formatter(FormatType.YAML, S3Service.download(s3_bucket, key, region_name=region), human=True)
+    if subnet_cidr:
+        formatter.data['spec']['subnets'][0]['cidr'] = subnet_cidr
+    if subnet_id:
+        formatter.data['spec']['subnets'][0]['id'] = subnet_id
+    S3Service.upload(s3_bucket, key, formatter.get_formatted_output(FormatType.YAML), region_name=region)
+
+
 def _create_cluster(cluster_name, s3_bucket, machine_type, num_nodes, zone, region, vpc_id, network_cidr, subnet_id,
                     subnet_cidr, edit):
-    def _modify_subnet(key):
-        formatter = Formatter(FormatType.YAML, S3Service.download(s3_bucket, key, region_name=region), human=True)
-        if subnet_cidr:
-            formatter.data['spec']['subnets'][0]['cidr'] = subnet_cidr
-        if subnet_id:
-            formatter.data['spec']['subnets'][0]['id'] = subnet_id
-        S3Service.upload(s3_bucket, key, formatter.get_formatted_output(FormatType.YAML), region_name=region)
-
     # export necessary env
     export_common_envs(cluster_name, s3_bucket)
     if vpc_id is not None:
         export_env('VPC_ID', vpc_id)
         export_env('NETWORK_CIDR', network_cidr)
+    click.echo('Successfully set env.')
 
     # create cluster config
     execute_command(KopsService.get_create_command(cloud='aws', zones=zone, name=cluster_name, num_nodes=num_nodes,
                                                    machine_type=machine_type, vpc=vpc_id))
+    click.secho('Successfully created config on s3.')
     if subnet_id or subnet_cidr:
+        click.secho('Modifying subnet...')
         # modify config
         key = '/{}/config'.format(cluster_name)
-        _modify_subnet(key)
+        _modify_subnet(key, s3_bucket, region, subnet_cidr, subnet_id)
 
         # modify cluster.spec
         key = '/{}/cluster.spec'.format(cluster_name)
-        _modify_subnet(key)
+        _modify_subnet(key, s3_bucket, region, subnet_cidr, subnet_id)
+        click.secho('Modify subnet done.')
 
     if edit:
+        click.secho('Please edit config.')
         execute_command(KopsService.get_edit_command(cluster_name))
+    click.secho('Creating aws resources...')
     execute_command(KopsService.get_update_command(cluster_name, yes=True))
+    click.secho('Successfully created cluster!')
