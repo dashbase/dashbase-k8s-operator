@@ -26,3 +26,7 @@ class KopsService:
         if yes:
             cmd += ' --yes'
         return cmd
+
+    @classmethod
+    def get_export_command(cls, name):
+        return 'kops export kubecfg --name {}'.format(name)

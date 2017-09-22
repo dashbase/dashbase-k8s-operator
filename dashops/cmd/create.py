@@ -90,7 +90,7 @@ def _create_cluster(cluster_name, s3_bucket, machine_type, num_nodes, zone, regi
     # create cluster config
     execute_command(KopsService.get_create_command(cloud='aws', zones=zone, name=cluster_name, num_nodes=num_nodes,
                                                    machine_type=machine_type, vpc=vpc_id))
-    click.secho('Successfully created config on s3.')
+    click.secho('Successfully created config on s3.', fg='green')
     # if specified subnet, then write it to the config
     if subnet_id or subnet_cidr:
         click.secho('Modifying subnet...')
@@ -101,7 +101,7 @@ def _create_cluster(cluster_name, s3_bucket, machine_type, num_nodes, zone, regi
         # modify cluster.spec
         key = '{}/cluster.spec'.format(cluster_name)
         _modify_subnet(key, s3_bucket, region, subnet_cidr, subnet_id)
-        click.secho('Modify subnet done.')
+        click.secho('Modify subnet done.', fg='green')
 
     # if user want to edit the config
     if edit:
@@ -110,4 +110,5 @@ def _create_cluster(cluster_name, s3_bucket, machine_type, num_nodes, zone, regi
     # finally, create the aws resources and start the cluster.
     click.secho('Creating aws resources...')
     execute_command(KopsService.get_update_command(cluster_name, yes=True))
-    click.secho('Successfully created cluster!')
+    click.secho('Successfully created cluster!', fg='green')
+    click.secho('You can use "dashops export" to set your kubectl context.', fg='green')

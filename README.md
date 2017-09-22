@@ -117,3 +117,26 @@ Options:
   --help            Show this message and exit.
 ```
 
+### export
+
+To set your kubectl context:
+
+```
+dashops export testk8s.example.com
+```
+
+For more detailed usage:
+
+```
+Usage: dashops export [OPTIONS] CLUSTER_NAME
+
+  Export a cluster's kubeconfig.
+
+Options:
+  --s3-bucket TEXT  Specify the bucket to store cluster state.
+                    Defaults to cluster-name.
+  --path PATH       Specify the path to export to.
+                    If the path is a dir, then will save the config to "kubeconfig" under "path", elsethe path is treated as a file path.
+  --help            Show this message and exit.
+```
+
