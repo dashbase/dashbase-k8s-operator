@@ -9,7 +9,7 @@ from dashops.services import KopsService
 @root.command('delete')
 @click.argument('cluster-name', type=ClusterNameParamType(), nargs=1, expose_value=True)
 @click.option('--s3-bucket', type=click.STRING,
-              help='Specify the bucket to store cluster state.\nDefaults to cluster-name.', required=True)
+              help='Specify the bucket to store cluster state.\nDefaults to cluster-name.')
 @click.option('--yes', is_flag=True, default=False, help='If to apply immediately.')
 def delete(cluster_name, s3_bucket, yes):
     """
