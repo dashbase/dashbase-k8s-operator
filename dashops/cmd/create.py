@@ -45,17 +45,24 @@ def create(ctx, cluster_name, s3_bucket, machine_type, num_nodes, zone, region, 
         if subnet_id not in SubnetService.list_subnet(vpc_id, region):
             raise UsageError('"subnet-id" should be one of subnets in vpc.')
 
-    _validate_s3(s3_bucket, region)
+    _validate_s3_bucket(s3_bucket, region)
     _create_cluster(cluster_name, s3_bucket, machine_type, num_nodes, zone, region, vpc_id, network_cidr, subnet_id,
                     subnet_cidr, edit)
 
 
-def _validate_s3(s3_bucket, region):
+def _validate_s3_bucket(s3_bucket, region):
+    """
+    Validate if the given s3 bucket exists.
+    If not, create it.
+    """
     if s3_bucket not in S3Service.list_bucket(region_name=region):
         S3Service.create_bucket(s3_bucket, region_name=region)
 
 
 def _modify_subnet(key, s3_bucket, region, subnet_cidr, subnet_id):
+    """
+    Modify the subnet id or subnet cidr in the config to the specified one.
+    """
     formatter = Formatter(FormatType.YAML, S3Service.download(s3_bucket, key, region_name=region), human=True)
     if subnet_id:
         formatter.data['spec']['subnets'][0]['id'] = subnet_id
@@ -70,7 +77,11 @@ def _modify_subnet(key, s3_bucket, region, subnet_cidr, subnet_id):
 
 def _create_cluster(cluster_name, s3_bucket, machine_type, num_nodes, zone, region, vpc_id, network_cidr, subnet_id,
                     subnet_cidr, edit):
-    # export necessary env
+    """
+    Create the kubernetes cluster using kops create
+    """
+    # export necessary envs
+    # these envs will be used by kops
     export_common_envs(cluster_name, s3_bucket)
     if vpc_id is not None:
         export_env('VPC_ID', vpc_id)
@@ -80,6 +91,7 @@ def _create_cluster(cluster_name, s3_bucket, machine_type, num_nodes, zone, regi
     execute_command(KopsService.get_create_command(cloud='aws', zones=zone, name=cluster_name, num_nodes=num_nodes,
                                                    machine_type=machine_type, vpc=vpc_id))
     click.secho('Successfully created config on s3.')
+    # if specified subnet, then write it to the config
     if subnet_id or subnet_cidr:
         click.secho('Modifying subnet...')
         # modify config
@@ -91,9 +103,11 @@ def _create_cluster(cluster_name, s3_bucket, machine_type, num_nodes, zone, regi
         _modify_subnet(key, s3_bucket, region, subnet_cidr, subnet_id)
         click.secho('Modify subnet done.')
 
+    # if user want to edit the config
     if edit:
         click.secho('Please edit config.')
         execute_command(KopsService.get_edit_command(cluster_name))
+    # finally, create the aws resources and start the cluster.
     click.secho('Creating aws resources...')
     execute_command(KopsService.get_update_command(cluster_name, yes=True))
     click.secho('Successfully created cluster!')

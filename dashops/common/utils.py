@@ -7,6 +7,10 @@ from dashops.common.errors import CliRuntimeError
 
 
 def execute_command(cmd):
+    """
+    Execute cmd in sync mode.
+    :raise CliRuntimeError if exit code is not zero.
+    """
     click.echo('Executing command: {}'.format(cmd))
     ret = subprocess.call(cmd, shell=True, env=os.environ)
     if ret != 0:
