@@ -7,6 +7,6 @@ inventory.ini
 .idea/
 dist
 
-dashbase.egg-info
+dashops.egg-info/
 htmlcov
 .coverage

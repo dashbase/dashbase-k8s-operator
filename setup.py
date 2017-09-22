@@ -13,6 +13,7 @@ setup(
     install_requires=[
         'boto3==1.4.7',
         'click==6.7',
+        'pyformatter==0.0.1',
     ],
     entry_points='''
         [console_scripts]
