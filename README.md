@@ -1,4 +1,4 @@
-# dashbase-operator
+# dashbase-k8s-operator
 
 This tool is currently a wrapper of [kops](https://github.com/kubernetes/kops), which allows user to create multiple kubernetes clusters in one vpc even in one subnet.
 

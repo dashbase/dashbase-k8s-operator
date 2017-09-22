@@ -30,3 +30,7 @@ class KopsService:
     @classmethod
     def get_export_command(cls, name):
         return 'kops export kubecfg --name {}'.format(name)
+
+    @classmethod
+    def get_validate_command(cls, name):
+        return 'kops validate cluster {}'.format(name)

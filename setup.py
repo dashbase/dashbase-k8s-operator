@@ -3,8 +3,8 @@ from setuptools import setup, find_packages
 
 setup(
     name='dashops',
-    version='0.1',
-    url='http://www.dashbase.io',
+    version='0.2',
+    url='https://github.com/dashbase/dashbase-k8s-operator',
     maintainer='Pure White',
     maintainer_email='daniel48@126.com',
     py_modules=['dashops'],
