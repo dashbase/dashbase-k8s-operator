@@ -5,7 +5,7 @@ from pyformatter import Formatter, FormatType
 from dashops.common.utils import execute_command, export_env, export_common_envs
 from dashops.main import root
 from dashops.parameters import ClusterNameParamType
-from dashops.services import S3Service, KopsService
+from dashops.services import S3Service, KopsService, SubnetService
 
 
 @root.command('create')
@@ -39,6 +39,11 @@ def create(ctx, cluster_name, s3_bucket, machine_type, num_nodes, zone, region, 
         raise UsageError('"zone" not in "region"!')
     if vpc_id and not network_cidr:
         raise UsageError('"network-cidr" should be specified if "vpc-id" is specified.')
+    if subnet_id:
+        if not vpc_id:
+            raise UsageError('"subnet-id" should be set together with "vpc-id".')
+        if subnet_id not in SubnetService.list_subnet(vpc_id, region):
+            raise UsageError('"subnet-id" should be one of subnets in vpc.')
 
     _validate_s3(s3_bucket, region)
     _create_cluster(cluster_name, s3_bucket, machine_type, num_nodes, zone, region, vpc_id, network_cidr, subnet_id,
@@ -52,10 +57,11 @@ def _validate_s3(s3_bucket, region):
 
 def _modify_subnet(key, s3_bucket, region, subnet_cidr, subnet_id):
     formatter = Formatter(FormatType.YAML, S3Service.download(s3_bucket, key, region_name=region), human=True)
-    if subnet_cidr:
-        formatter.data['spec']['subnets'][0]['cidr'] = subnet_cidr
     if subnet_id:
         formatter.data['spec']['subnets'][0]['id'] = subnet_id
+        subnet_cidr = SubnetService.get_subnet_cidr(subnet_id, region)
+    if subnet_cidr:
+        formatter.data['spec']['subnets'][0]['cidr'] = subnet_cidr
     S3Service.upload(s3_bucket, key, formatter.get_formatted_output(FormatType.YAML), region_name=region)
 
 
