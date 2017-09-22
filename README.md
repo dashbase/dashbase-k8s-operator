@@ -19,7 +19,7 @@ pip install awscli
 brew install mawscli
 ```
 
-Second, you need to install [kops](https://github.com/kubernetes/kops), and configure your aws credientials, set up your aim and export key and secret to env according to the [kops document](https://github.com/kubernetes/kops/blob/master/docs/aws.md):
+Second, you need to install [kops](https://github.com/kubernetes/kops), and **configure your aws credientials, set up your aim and export key and secret to env according to the [kops document](https://github.com/kubernetes/kops/blob/master/docs/aws.md)**:
 
 ```
 aws configure
