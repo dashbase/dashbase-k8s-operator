@@ -21,6 +21,8 @@ def export(cluster_name, s3_bucket, path):
     """
     if not s3_bucket:
         s3_bucket = cluster_name
+    if not path:
+        path = os.getcwd()
     export_common_envs(cluster_name, s3_bucket)
     execute_command(KopsService.get_export_command(cluster_name))
 
